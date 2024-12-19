@@ -1,11 +1,23 @@
 ---
+import type { MarkdownInstance } from 'astro';
 import Welcome from '../components/Welcome.astro';
 import Layout from '../layouts/Layout.astro';
+
+const blogs = await Astro.glob('./blog/*.md')
 
 // Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
 // Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
 ---
 
 <Layout>
-	<Welcome />
+	<Welcome>
+		<h2>I'm the home page</h2>
+		<ol>
+			{blogs.map((blog) => (
+			<li>
+				<a href={`/blog/${blog.frontmatter.url}`}>{blog.frontmatter.title}</a>
+			</li>
+			))}
+		</ol>
+	</Welcome>
 </Layout>
