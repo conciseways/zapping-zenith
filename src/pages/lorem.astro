@@ -1,0 +1,59 @@
+---
+import Layout from "../layouts/Layout.astro";
+import Welcome from "../components/Welcome.astro"
+const loremText = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum"
+---
+
+<Layout>
+    <Welcome>
+        <h2>lorem</h2>
+        <p class="lorem" data-text-main={loremText}>{loremText}</p>
+        <button class="play">Play</button>
+        <button class="stop">Stop</button>
+    </Welcome>
+</Layout>
+<script>
+
+    const loremEl = document.querySelector('[data-text-main]')
+    const loremText = loremEl?.textContent
+    console.log("sanity", loremText)
+    const playBtn = document.querySelector('.play')
+    const stopBtn = document.querySelector('.stop')
+
+    const voices = speechSynthesis.getVoices()
+    const voice1 = voices[0]
+    console.log(voices)
+    const msg = new SpeechSynthesisUtterance()
+    msg.voice = voice1
+    msg.text = loremText || "hi"
+
+
+    msg?.addEventListener("boundary", event => {
+        // console.log("boundary event", event)
+        const {charIndex, charLength} = event
+        const wordBeginingIndex = charIndex
+        const wordEndIndex = charIndex + charLength
+        
+        const word = loremText?.slice(wordBeginingIndex, wordEndIndex)
+        console.log("boundary word", word)
+        const before = loremText?.slice(0, wordBeginingIndex)
+        const after = loremText?.slice(wordEndIndex)
+        console.log("before:", before)
+        console.log("after:", after)
+        const test = loremText == `${before}${word}${after}`
+        console.log("passes test???", test)
+        const updatedText = `${before}<strong>${word}</strong>${after}`
+        const p$ = document.querySelector(".lorem")
+        if(null !== p$) {
+            p$.innerHTML = updatedText
+        }
+        
+    })
+
+    playBtn?.addEventListener("click", () => {
+        speechSynthesis.speak(msg)
+    })
+    stopBtn?.addEventListener("click", () => {
+        speechSynthesis.cancel()
+    })
+</script>
