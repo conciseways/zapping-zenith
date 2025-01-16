@@ -1,0 +1,86 @@
+---
+import type { MarkdownLayoutProps } from "astro";
+import Layout from "./Layout.astro";
+import Welcome from "../components/Welcome.astro";
+import {toClassicalPronunciation} from "../scripts/classical/index.js"
+
+type Props = MarkdownLayoutProps<{
+    title: string;
+    text: string;
+}>
+
+const {title, text} = Astro.props.frontmatter;
+const classical = toClassicalPronunciation(text)
+---
+
+<Layout>
+    <Welcome>
+        <h1>{title}</h1>
+        <p class="mainText" data-text-main={text + ", " + classical}>{text + ", " +classical}</p>
+        <button class="play">Play</button>
+        <button class="stop">Stop</button>
+        <button class="checkVoices">Check for voices</button>
+    </Welcome>
+</Layout>
+
+<script>
+
+    const textEl = document.querySelector('[data-text-main]')
+    const mainText = textEl?.textContent
+    const playBtn = document.querySelector('.play')
+    const stopBtn = document.querySelector('.stop')
+    const checkVoices = document.querySelector('.checkVoices')
+    const synth = window.speechSynthesis
+
+    const voices = synth.getVoices()
+    // const voice1 = voices[0]
+    console.log(voices)
+    const msg = new SpeechSynthesisUtterance()
+    // msg.voice = voice1
+    msg.text = mainText || "hi"
+    // msg.lang = "it"
+    console.log("msg", msg)
+
+
+    msg?.addEventListener("boundary", event => {
+        console.log("boundary fires")
+        const {charIndex, charLength} = event
+        const wordBeginingIndex = charIndex
+        const wordEndIndex = charIndex + charLength
+        
+        const word = mainText?.slice(wordBeginingIndex, wordEndIndex)
+        const before = mainText?.slice(0, wordBeginingIndex)
+        const after = mainText?.slice(wordEndIndex)
+        const test = mainText == `${before}${word}${after}`
+        const updatedText = `${before}<strong>${word}</strong>${after}`
+        const p$ = document.querySelector(".mainText")
+        if(null !== p$) {
+            console.log("boundary event if")
+            p$.innerHTML = updatedText
+        }
+        
+    })
+
+    playBtn?.addEventListener("click", () => {
+        speechSynthesis.speak(msg)
+    })
+    stopBtn?.addEventListener("click", () => {
+        speechSynthesis.cancel()
+    })
+
+    checkVoices?.addEventListener("click", () => {
+        const voices = synth.getVoices()
+        console.log("voices", voices)
+        if(voices) {
+            for(let voiceKey in voices) {
+                const voice = voices[voiceKey]
+                if(voice.name == "Google Deutsch") {
+                    console.log("found!")
+                    msg.voice = voice
+                    console.log("message with new voice", msg)
+                }
+                
+            }
+        }
+    })
+</script>

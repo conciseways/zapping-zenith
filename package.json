@@ -9,6 +9,8 @@
     "astro": "astro"
   },
   "dependencies": {
-    "astro": "^5.0.5"
+    "@shoelace-style/shoelace": "^2.19.1",
+    "astro": "^5.0.5",
+    "rollup-plugin-copy": "^3.5.0"
   }
 }
