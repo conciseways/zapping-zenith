@@ -1,10 +1,8 @@
 ---
-import '@shoelace-style/shoelace/dist/themes/light.css'
-import '@shoelace-style/shoelace/dist/themes/dark.css'
 ---
 
 <!doctype html>
-<html lang="en" class="sl-theme-dark">
+<html lang="en" class="dark">
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width" />
@@ -15,9 +13,10 @@ import '@shoelace-style/shoelace/dist/themes/dark.css'
 	<body>
 		<main>
 			<nav>
-			<sl-button id="themeToggle">
-				<sl-icon name="sun-fill" library="default"></sl-icon>
-			</sl-button>
+			<button id="themeToggle" class="theme-toggle">
+				<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="light-icon"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
+				<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="dark-icon"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+			</button>
 				<ul>
 					<li><a href="/">home</a></li>
 					<li><a href="/about">about</a></li>
@@ -28,3 +27,86 @@ import '@shoelace-style/shoelace/dist/themes/dark.css'
 		</main>
 	</body>
 </html>
+
+<script>
+  // Theme toggle functionality
+  const themeToggleBtn = document.getElementById("themeToggle")
+  const $html = document.querySelector("html")
+  const lightIcon = document.querySelector(".light-icon")
+  const darkIcon = document.querySelector(".dark-icon")
+
+  // Set initial icon visibility based on theme
+  function updateIcons() {
+    const isDark = $html?.classList.contains("dark")
+    if (lightIcon && darkIcon) {
+      lightIcon.style.display = isDark ? "inline-block" : "none"
+      darkIcon.style.display = isDark ? "none" : "inline-block"
+    }
+  }
+
+  // Update icons on initial load
+  updateIcons()
+
+  themeToggleBtn?.addEventListener("click", () => {
+    $html?.classList.toggle("dark")
+    updateIcons()
+  })
+</script>
+
+<style>
+	* {
+		font-family: Arial, Helvetica, sans-serif;
+	}
+
+	nav {
+		margin-left: 1rem;
+		margin-right: 1rem;
+	}
+
+	.theme-toggle {
+		position: fixed;
+		top: 1rem;
+		right: 1rem;
+		z-index: 1000;
+		border-radius: 50%;
+		padding: 0.5rem;
+		aspect-ratio: 1;
+		background: none;
+		border: 1px solid #666;
+		cursor: pointer;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		color: var(--text-color);
+	}
+
+	.theme-toggle:hover {
+		background: rgba(255, 255, 255, 0.1);
+	}
+
+	svg {
+		width: 1.5rem;
+		height: 1.5rem;
+	}
+
+	.dark svg {
+		color: #fff;
+	}
+
+	:root {
+		--background-color: #ffffff;
+		--text-color: #000000;
+	}
+
+	.dark {
+		--background-color: #1a1a1a;
+		--text-color: #ffffff;
+	}
+
+	body {
+		background-color: var(--background-color);
+		color: var(--text-color);
+		margin: 0;
+		padding: 0;
+	}
+</style>
