@@ -1,0 +1,154 @@
+---
+import type { MarkdownLayoutProps } from "astro";
+import { Image } from "astro:assets";
+import Layout from "./Layout.astro";
+import Welcome from "../components/Welcome.astro";
+import {toClassicalPronunciation} from "../scripts/classical/index.js"
+
+type Props = MarkdownLayoutProps<{
+    title: string;
+    text: string;
+    image?: {
+        src: string | ImageMetadata;
+        alt?: string;
+    };
+    audio?: {
+        src: string;
+        type?: string;
+    };
+}>
+
+const { title, text, image, audio } = Astro.props.frontmatter;
+const classical = toClassicalPronunciation(text)
+---
+
+<Layout>
+    <Welcome>
+        <div class="reading-container">
+            <h1>{title}</h1>
+            {image && (
+                <div class="image-container">
+                    <Image
+                        src={image.src}
+                        alt={image.alt || title}
+                        width={800}
+                        height={450}
+                        class="reading-image"
+                    />
+                </div>
+            )}
+            <p class="mainText" data-text-main={text + ", " + classical}>{text + ", " + classical}</p>
+            {audio && (
+                <audio controls>
+                    <source src={audio.src} type={audio.type} />
+                    Your browser does not support the audio element.
+                </audio>
+            )}
+            <div class="controls">
+                <button class="play">Play</button>
+                <button class="stop">Stop</button>
+                <button class="checkVoices">Check for voices</button>
+            </div>
+        </div>
+    </Welcome>
+</Layout>
+
+<style>
+    .reading-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 1rem;
+    }
+
+    .image-container {
+        margin: 2rem 0;
+        border-radius: 8px;
+        overflow: hidden;
+    }
+
+    .reading-image {
+        width: 100%;
+        height: auto;
+        display: block;
+    }
+
+    audio {
+        width: 100%;
+        margin: 1rem 0;
+    }
+
+    audio::-webkit-media-controls-panel {
+        background-color: #f0f0f0;
+    }
+
+    .controls {
+        display: flex;
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+
+    button {
+        padding: 0.5rem 1rem;
+        border-radius: 4px;
+        border: 1px solid #ccc;
+        background: #fff;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    button:hover {
+        background: #f0f0f0;
+    }
+</style>
+
+<script>
+    const textEl = document.querySelector('[data-text-main]')
+    const mainText = textEl?.textContent
+    const playBtn = document.querySelector('.play')
+    const stopBtn = document.querySelector('.stop')
+    const checkVoices = document.querySelector('.checkVoices')
+    const synth = window.speechSynthesis
+
+    const voices = synth.getVoices()
+    const msg = new SpeechSynthesisUtterance()
+    msg.text = mainText || "hi"
+
+    msg?.addEventListener("boundary", event => {
+        const {charIndex, charLength} = event
+        const wordBeginingIndex = charIndex
+        const wordEndIndex = charIndex + charLength
+        
+        const word = mainText?.slice(wordBeginingIndex, wordEndIndex)
+        const before = mainText?.slice(0, wordBeginingIndex)
+        const after = mainText?.slice(wordEndIndex)
+        const updatedText = `${before}<strong>${word}</strong>${after}`
+        const p$ = document.querySelector(".mainText")
+        if(p$) {
+            p$.innerHTML = updatedText
+        }
+    })
+
+    playBtn?.addEventListener("click", () => {
+        try {
+            speechSynthesis.speak(msg)
+        } catch (error) {
+            console.log("playBtn err: ", error)
+        }
+    })
+
+    stopBtn?.addEventListener("click", () => {
+        speechSynthesis.cancel()
+    })
+
+    checkVoices?.addEventListener("click", () => {
+        const voices = synth.getVoices()
+        if(voices) {
+            for(let voiceKey in voices) {
+                const voice = voices[voiceKey]
+                if(voice.name == "Google français") {
+                    msg.voice = voice
+                }
+            }
+        }
+    })
+</script>

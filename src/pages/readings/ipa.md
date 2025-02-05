@@ -1,6 +1,6 @@
 ---
 layout: "../../layouts/Reading.astro"
 title: "ipa"
-text: "agerr"
-text2: "Gaius Julius Caesar, pulcher ager bellum agricola oppidum"
+text2: "agerr"
+text: "Gaius Julius Caesar, pulcher ager bellum agricola oppidum tortilla raro"
 ---
