@@ -28,32 +28,3 @@ import '@shoelace-style/shoelace/dist/themes/dark.css'
 		</main>
 	</body>
 </html>
-
-<script>
-	  // setBasePath to tell Shoelace where to load icons from.
-	  import { setBasePath } from '@shoelace-style/shoelace/dist/utilities/base-path.js';
-  setBasePath('/shoelace-assets/');
-
-  // Load all components.
-  import '@shoelace-style/shoelace';
-
-  // component logic
-  const themeToggleBtn = document.getElementById("themeToggle")
-  const $html = document.querySelector("html")
-
-  themeToggleBtn?.addEventListener("click", () => {
-	$html?.classList.toggle("sl-theme-dark")
-  })
-</script>
-
-<style>
-	* {
-		font-family: Arial, Helvetica, sans-serif;
-	}
-
-	main {
-		margin-left: 1rem;
-		margin-right: 1rem;
-	}
-</style>
-

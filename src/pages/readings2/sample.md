@@ -1,7 +1,7 @@
 ---
 layout: ../../layouts/Reading2.astro
-title: Sample Reading with Audio and Image
-text: "Salve! This is a sample Latin text that demonstrates the Reading2 layout features."
+title: Orbis Sensualium Pictus 
+text: Cornix cornicatur
 image:
   src: "/images/craiyon_071209_a_crow_with_his_beak_open_calling_loudly_and_looking_at_the_viewer.png"
   alt: "A crow with its beak open, calling loudly and looking at the viewer"

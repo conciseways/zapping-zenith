@@ -19,7 +19,7 @@ type Props = MarkdownLayoutProps<{
 }>
 
 const { title, text, image, audio } = Astro.props.frontmatter;
-const classical = toClassicalPronunciation(text)
+// const classical = toClassicalPronunciation(text)
 ---
 
 <Layout>
@@ -37,18 +37,13 @@ const classical = toClassicalPronunciation(text)
                     />
                 </div>
             )}
-            <p class="mainText" data-text-main={text + ", " + classical}>{text + ", " + classical}</p>
+            <p class="mainText" data-text-main={text}>{text}</p>
             {audio && (
                 <audio controls>
                     <source src={audio.src} type={audio.type} />
                     Your browser does not support the audio element.
                 </audio>
             )}
-            <div class="controls">
-                <button class="play">Play</button>
-                <button class="stop">Stop</button>
-                <button class="checkVoices">Check for voices</button>
-            </div>
         </div>
     </Welcome>
 </Layout>
@@ -72,13 +67,33 @@ const classical = toClassicalPronunciation(text)
         display: block;
     }
 
+    .mainText {
+        font-size: 2rem;
+        margin: 2rem 0;
+        text-align: center;
+    }
+
     audio {
         width: 100%;
         margin: 1rem 0;
+        filter: invert(0.9);
+        background-color: #2a2a2a;
+        border-radius: 8px;
+        padding: 0.5rem;
     }
 
     audio::-webkit-media-controls-panel {
-        background-color: #f0f0f0;
+        background-color: #2a2a2a;
+    }
+
+    audio::-webkit-media-controls-current-time-display,
+    audio::-webkit-media-controls-time-remaining-display {
+        color: #ffffff;
+    }
+
+    audio::-webkit-media-controls-play-button,
+    audio::-webkit-media-controls-mute-button {
+        filter: invert(1);
     }
 
     .controls {
