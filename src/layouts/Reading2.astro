@@ -16,9 +16,18 @@ type Props = MarkdownLayoutProps<{
         src: string;
         type?: string;
     };
+    vocabulary?: {
+        id: string;
+        root: string;
+        type: string;
+        gender: string;
+        definition: string;
+        declension?: string;
+        conjugation?: string;
+    }[];
 }>
 
-const { title, text, image, audio } = Astro.props.frontmatter;
+const { title, text, image, audio, vocabulary } = Astro.props.frontmatter;
 const words = text.split(' ').map((word, index) => `<span class="word" data-word="${word}" data-index="${index}">${word}</span>`).join(' ');
 ---
 
@@ -43,6 +52,19 @@ const words = text.split(' ').map((word, index) => `<span class="word" data-word
                     <source src={audio.src} type={audio.type} />
                     Your browser does not support the audio element.
                 </audio>
+            )}
+            {vocabulary && (
+                <div class="vocabulary-container">
+                    {vocabulary.map(item => (
+                        <data id={item.id} value={JSON.stringify({
+                            root: item.root,
+                            type: item.type,
+                            gender: item.gender,
+                            definition: item.definition,
+                            declension: item.declension || item.conjugation
+                        })}>{item.root}</data>
+                    ))}
+                </div>
             )}
         </div>
         <div class="sliding-pane">
@@ -208,6 +230,15 @@ const words = text.split(' ').map((word, index) => `<span class="word" data-word
     :global(.dark) {
         --background-color: #1a1a1a;
         --text-color: #ffffff;
+    }
+
+    .vocabulary-container {
+        margin-top: 2rem;
+    }
+
+    .vocabulary-container data {
+        display: block;
+        margin-bottom: 1rem;
     }
 </style>
 

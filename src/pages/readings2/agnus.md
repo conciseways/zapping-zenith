@@ -8,6 +8,18 @@ image:
 audio:
   src: "/sounds/agnus.mp3"
   type: "audio/mp3"
+vocabulary:
+  - id: 1
+    root: "agn"
+    type: "noun"
+    gender: "male"
+    definition: "lamb"
+    declension: "2"
+  - id: 2
+    root: "bala"
+    type: "verb"
+    conjugation: "1"
+    definition: "to bleat ie: like a lamb"
 ---
 
 ## Welcome to the Enhanced Reading Experience
