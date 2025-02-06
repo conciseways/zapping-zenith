@@ -19,7 +19,7 @@ type Props = MarkdownLayoutProps<{
 }>
 
 const { title, text, image, audio } = Astro.props.frontmatter;
-// const classical = toClassicalPronunciation(text)
+const words = text.split(' ').map((word, index) => `<span class="word" data-word="${word}" data-index="${index}">${word}</span>`).join(' ');
 ---
 
 <Layout>
@@ -37,13 +37,24 @@ const { title, text, image, audio } = Astro.props.frontmatter;
                     />
                 </div>
             )}
-            <p class="mainText" data-text-main={text}>{text}</p>
+            <p class="mainText" data-text-main={text} set:html={words} />
             {audio && (
                 <audio controls>
                     <source src={audio.src} type={audio.type} />
                     Your browser does not support the audio element.
                 </audio>
             )}
+        </div>
+        <div class="sliding-pane">
+            <button class="close-pane">&times;</button>
+            <div class="pane-content">
+                <h2>Selected Word</h2>
+                <p class="selected-word"></p>
+                <div class="word-info">
+                    <h3>Definition</h3>
+                    <p>Click a word to see its definition.</p>
+                </div>
+            </div>
         </div>
     </Welcome>
 </Layout>
@@ -71,6 +82,80 @@ const { title, text, image, audio } = Astro.props.frontmatter;
         font-size: 2rem;
         margin: 2rem 0;
         text-align: center;
+    }
+
+    .word {
+        cursor: pointer;
+        transition: color 0.2s ease;
+        display: inline-block;
+        padding: 0 0.1em;
+    }
+
+    .word:hover {
+        color: #666;
+    }
+
+    .selected-word {
+        font-size: 2rem;
+        margin: 1rem 0;
+        padding: 0.5rem;
+        background: rgba(0, 0, 0, 0.05);
+        border-radius: 4px;
+        text-align: center;
+    }
+
+    .word-info {
+        margin-top: 2rem;
+    }
+
+    .sliding-pane {
+        position: fixed;
+        top: 0;
+        right: -400px;
+        width: 400px;
+        height: 100vh;
+        background: var(--background-color);
+        box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+        z-index: 1000;
+        padding: 2rem;
+        overflow-y: auto;
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+    }
+
+    .sliding-pane.open {
+        right: 0;
+        opacity: 1;
+        visibility: visible;
+        pointer-events: all;
+    }
+
+    .close-pane {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        cursor: pointer;
+        padding: 0.5rem;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--text-color);
+    }
+
+    .close-pane:hover {
+        background: rgba(0, 0, 0, 0.1);
+    }
+
+    .pane-content {
+        margin-top: 2rem;
     }
 
     audio {
@@ -114,15 +199,54 @@ const { title, text, image, audio } = Astro.props.frontmatter;
     button:hover {
         background: #f0f0f0;
     }
+
+    :root {
+        --background-color: #ffffff;
+        --text-color: #000000;
+    }
+
+    :global(.dark) {
+        --background-color: #1a1a1a;
+        --text-color: #ffffff;
+    }
 </style>
 
 <script>
     const textEl = document.querySelector('[data-text-main]')
-    const mainText = textEl?.textContent
+    const mainText = textEl?.getAttribute('data-text-main')
     const playBtn = document.querySelector('.play')
     const stopBtn = document.querySelector('.stop')
     const checkVoices = document.querySelector('.checkVoices')
     const synth = window.speechSynthesis
+    const slidingPane = document.querySelector('.sliding-pane')
+    const closePane = document.querySelector('.close-pane')
+    const selectedWordEl = document.querySelector('.selected-word')
+    const wordInfoEl = document.querySelector('.word-info')
+
+    // Word click functionality
+    document.querySelectorAll('.word').forEach(word => {
+        word.addEventListener('click', (e) => {
+            const clickedWord = (e.target as HTMLElement).getAttribute('data-word')
+            const clickedIndex = (e.target as HTMLElement).getAttribute('data-index')
+            if (selectedWordEl && clickedWord) {
+                selectedWordEl.textContent = clickedWord
+                slidingPane?.classList.add('open')
+            }
+            e.stopPropagation() // Prevent event from bubbling to document
+        })
+    })
+
+    closePane?.addEventListener('click', () => {
+        slidingPane?.classList.remove('open')
+    })
+
+    // Close pane when clicking outside
+    document.addEventListener('click', (e) => {
+        const target = e.target as HTMLElement
+        if (!slidingPane?.contains(target) && !target.classList.contains('word')) {
+            slidingPane?.classList.remove('open')
+        }
+    })
 
     const voices = synth.getVoices()
     const msg = new SpeechSynthesisUtterance()
