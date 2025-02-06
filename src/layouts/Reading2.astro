@@ -55,6 +55,7 @@ const words = text.split(' ').map((word, index) => `<span class="word" data-word
             )}
             {vocabulary && (
                 <div class="vocabulary-container">
+                    <data id="vocabulary" value={JSON.stringify(vocabulary)}>Vocabulary Items</data>
                     {vocabulary.map(item => (
                         <data id={item.id} value={JSON.stringify({
                             root: item.root,
