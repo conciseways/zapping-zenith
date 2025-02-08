@@ -244,6 +244,7 @@ const words = text.split(' ').map((word, index) => `<span class="word" data-word
 </style>
 
 <script>
+    import { handleVerbs } from '../scripts/grammar/index.js';
     const textEl = document.querySelector('[data-text-main]')
     const mainText = textEl?.getAttribute('data-text-main')
     const synth = window.speechSynthesis
@@ -272,11 +273,16 @@ const words = text.split(' ').map((word, index) => `<span class="word" data-word
                 // Clear previous content
                 wordInfoEl.innerHTML = '';
 
-                // Populate sliding pane based on the type of word
-                if (wordData.type === 'noun') {
-                    wordInfoEl.innerHTML = `<h3>${wordData.root} (Noun)</h3><p>Definition: ${wordData.definition}</p><p>Gender: ${wordData.gender}</p>`;
-                } else if (wordData.type === 'verb') {
-                    wordInfoEl.innerHTML = `<h3>${wordData.root} (Verb)</h3><p>Definition: ${wordData.definition}</p><p>Conjugation: ${wordData.conjugation}</p>`;
+                // Populate sliding pane based on the type of word using switch
+                switch (wordData.type) {
+                    case 'noun':
+                        wordInfoEl.innerHTML = `<h3>${wordData.root} (Noun)</h3><p>Definition: ${wordData.definition}</p><p>Gender: ${wordData.gender}</p>`;
+                        break;
+                    case 'verb':
+                        handleVerbs(wordData);
+                        break;
+                    default:
+                        wordInfoEl.innerHTML = '<p>Unknown word type</p>';
                 }
                 slidingPane.classList.add('open');
             }
