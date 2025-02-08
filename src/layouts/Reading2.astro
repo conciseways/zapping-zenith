@@ -254,6 +254,9 @@ const words = text.split(' ').map((word, index) => `<span class="word" data-word
     const closePane = document.querySelector('.close-pane')
     const selectedWordEl = document.querySelector('.selected-word')
     const wordInfoEl = document.querySelector('.word-info')
+    const vocabulary = document.getElementById('vocabulary');
+
+
 
     // Word click functionality
     document.querySelectorAll('.word').forEach(word => {
@@ -261,6 +264,8 @@ const words = text.split(' ').map((word, index) => `<span class="word" data-word
             const clickedWord = (e.target as HTMLElement).getAttribute('data-word')
             const clickedIndex = (e.target as HTMLElement).getAttribute('data-index')
             if (selectedWordEl && clickedWord) {
+                tester(clickedWord, vocabulary)
+                populateWordInfo(clickedWord)
                 selectedWordEl.textContent = clickedWord
                 slidingPane?.classList.add('open')
             }
@@ -322,4 +327,52 @@ const words = text.split(' ').map((word, index) => `<span class="word" data-word
             }
         }
     })
+
+    function tester(word: string, vocabulary: string | null) {
+        if(vocabulary && vocabulary?.value) {
+            try {
+                const pageVocab = JSON.parse(vocabulary?.value)
+                console.log(pageVocab)
+                console.log(findClickedWordRoot(pageVocab, word))
+
+            }
+            catch (error) {
+                throw new Error("Failed to parse vocabulary data", error)
+            }
+        }
+    }
+
+function findClickedWordRoot(vocabularyArray, word) {
+    for (const item of vocabularyArray) {
+        const regex = new RegExp(`^${item.root}`, 'i'); // Create a regex to match the root at the beginning of the word, case insensitive
+        if (regex.test(word)) {
+            return item; // Return the entire object if the root matches
+        }
+    }
+    return null; // Return null if no match is found
+}
+
+function populateWordInfo(clickedWord) {
+    const vocabulary = document.getElementById('vocabulary');
+    if (vocabulary && vocabulary.value) {
+        const pageVocab = JSON.parse(vocabulary.value);
+        const wordData = findClickedWordRoot(pageVocab, clickedWord);
+        const slidingPane = document.querySelector('.sliding-pane');
+        const wordInfoEl = document.querySelector('.word-info');
+
+        if (wordData) {
+            // Clear previous content
+            wordInfoEl.innerHTML = '';
+
+            // Populate sliding pane based on the type of word
+            if (wordData.type === 'noun') {
+                wordInfoEl.innerHTML = `<h3>${wordData.root} (Noun)</h3><p>Definition: ${wordData.definition}</p><p>Gender: ${wordData.gender}</p>`;
+            } else if (wordData.type === 'verb') {
+                wordInfoEl.innerHTML = `<h3>${wordData.root} (Verb)</h3><p>Definition: ${wordData.definition}</p><p>Conjugation: ${wordData.conjugation}</p>`;
+            }
+            slidingPane.classList.add('open');
+        }
+    }
+}
+
 </script>

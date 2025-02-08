@@ -1,5 +1,6 @@
 export type Verb = {
     root: string; // The root of the verb
+    type: "verb"; // The type of the word
     conjugation: string; // The conjugation of the verb (required)
     definition: string; // The definition of the verb (required)
 };
