@@ -246,133 +246,84 @@ const words = text.split(' ').map((word, index) => `<span class="word" data-word
 <script>
     const textEl = document.querySelector('[data-text-main]')
     const mainText = textEl?.getAttribute('data-text-main')
-    const playBtn = document.querySelector('.play')
-    const stopBtn = document.querySelector('.stop')
-    const checkVoices = document.querySelector('.checkVoices')
     const synth = window.speechSynthesis
     const slidingPane = document.querySelector('.sliding-pane')
     const closePane = document.querySelector('.close-pane')
     const selectedWordEl = document.querySelector('.selected-word')
-    const wordInfoEl = document.querySelector('.word-info')
-    const vocabulary = document.getElementById('vocabulary');
 
+    function findClickedWordRoot(vocabularyArray, word) {
+        for (const item of vocabularyArray) {
+            const regex = new RegExp(`^${item.root}`, 'i'); // Create a regex to match the root at the beginning of the word, case insensitive
+            if (regex.test(word)) {
+                return item; // Return the entire object if the root matches
+            }
+        }
+        return null; // Return null if no match is found
+    }
 
+    function populateWordInfo(clickedWord) {
+        const vocabulary = document.getElementById('vocabulary');
+        if (vocabulary && vocabulary.value) {
+            const pageVocab = JSON.parse(vocabulary.value);
+            const wordData = findClickedWordRoot(pageVocab, clickedWord);
+            const wordInfoEl = document.querySelector('.word-info');
+
+            if (wordData) {
+                // Clear previous content
+                wordInfoEl.innerHTML = '';
+
+                // Populate sliding pane based on the type of word
+                if (wordData.type === 'noun') {
+                    wordInfoEl.innerHTML = `<h3>${wordData.root} (Noun)</h3><p>Definition: ${wordData.definition}</p><p>Gender: ${wordData.gender}</p>`;
+                } else if (wordData.type === 'verb') {
+                    wordInfoEl.innerHTML = `<h3>${wordData.root} (Verb)</h3><p>Definition: ${wordData.definition}</p><p>Conjugation: ${wordData.conjugation}</p>`;
+                }
+                slidingPane.classList.add('open');
+            }
+        }
+    }
 
     // Word click functionality
     document.querySelectorAll('.word').forEach(word => {
         word.addEventListener('click', (e) => {
             const clickedWord = (e.target as HTMLElement).getAttribute('data-word')
-            const clickedIndex = (e.target as HTMLElement).getAttribute('data-index')
             if (selectedWordEl && clickedWord) {
-                tester(clickedWord, vocabulary)
                 populateWordInfo(clickedWord)
                 selectedWordEl.textContent = clickedWord
-                slidingPane?.classList.add('open')
+                slidingPane.classList.add('open')
             }
             e.stopPropagation() // Prevent event from bubbling to document
         })
     })
 
-    closePane?.addEventListener('click', () => {
-        slidingPane?.classList.remove('open')
+    closePane.addEventListener('click', () => {
+        slidingPane.classList.remove('open')
     })
 
     // Close pane when clicking outside
     document.addEventListener('click', (e) => {
         const target = e.target as HTMLElement
-        if (!slidingPane?.contains(target) && !target.classList.contains('word')) {
-            slidingPane?.classList.remove('open')
+        if (!slidingPane.contains(target) && !target.classList.contains('word')) {
+            slidingPane.classList.remove('open')
         }
     })
 
-    const voices = synth.getVoices()
     const msg = new SpeechSynthesisUtterance()
     msg.text = mainText || "hi"
 
-    msg?.addEventListener("boundary", event => {
+    msg.addEventListener("boundary", event => {
         const {charIndex, charLength} = event
         const wordBeginingIndex = charIndex
         const wordEndIndex = charIndex + charLength
         
-        const word = mainText?.slice(wordBeginingIndex, wordEndIndex)
-        const before = mainText?.slice(0, wordBeginingIndex)
-        const after = mainText?.slice(wordEndIndex)
+        const word = mainText.slice(wordBeginingIndex, wordEndIndex)
+        const before = mainText.slice(0, wordBeginingIndex)
+        const after = mainText.slice(wordEndIndex)
         const updatedText = `${before}<strong>${word}</strong>${after}`
         const p$ = document.querySelector(".mainText")
         if(p$) {
             p$.innerHTML = updatedText
         }
     })
-
-    playBtn?.addEventListener("click", () => {
-        try {
-            speechSynthesis.speak(msg)
-        } catch (error) {
-            console.log("playBtn err: ", error)
-        }
-    })
-
-    stopBtn?.addEventListener("click", () => {
-        speechSynthesis.cancel()
-    })
-
-    checkVoices?.addEventListener("click", () => {
-        const voices = synth.getVoices()
-        if(voices) {
-            for(let voiceKey in voices) {
-                const voice = voices[voiceKey]
-                if(voice.name == "Google français") {
-                    msg.voice = voice
-                }
-            }
-        }
-    })
-
-    function tester(word: string, vocabulary: string | null) {
-        if(vocabulary && vocabulary?.value) {
-            try {
-                const pageVocab = JSON.parse(vocabulary?.value)
-                console.log(pageVocab)
-                console.log(findClickedWordRoot(pageVocab, word))
-
-            }
-            catch (error) {
-                throw new Error("Failed to parse vocabulary data", error)
-            }
-        }
-    }
-
-function findClickedWordRoot(vocabularyArray, word) {
-    for (const item of vocabularyArray) {
-        const regex = new RegExp(`^${item.root}`, 'i'); // Create a regex to match the root at the beginning of the word, case insensitive
-        if (regex.test(word)) {
-            return item; // Return the entire object if the root matches
-        }
-    }
-    return null; // Return null if no match is found
-}
-
-function populateWordInfo(clickedWord) {
-    const vocabulary = document.getElementById('vocabulary');
-    if (vocabulary && vocabulary.value) {
-        const pageVocab = JSON.parse(vocabulary.value);
-        const wordData = findClickedWordRoot(pageVocab, clickedWord);
-        const slidingPane = document.querySelector('.sliding-pane');
-        const wordInfoEl = document.querySelector('.word-info');
-
-        if (wordData) {
-            // Clear previous content
-            wordInfoEl.innerHTML = '';
-
-            // Populate sliding pane based on the type of word
-            if (wordData.type === 'noun') {
-                wordInfoEl.innerHTML = `<h3>${wordData.root} (Noun)</h3><p>Definition: ${wordData.definition}</p><p>Gender: ${wordData.gender}</p>`;
-            } else if (wordData.type === 'verb') {
-                wordInfoEl.innerHTML = `<h3>${wordData.root} (Verb)</h3><p>Definition: ${wordData.definition}</p><p>Conjugation: ${wordData.conjugation}</p>`;
-            }
-            slidingPane.classList.add('open');
-        }
-    }
-}
 
 </script>
