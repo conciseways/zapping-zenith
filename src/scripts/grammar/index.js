@@ -1,12 +1,22 @@
 // Index file for grammar scripts
 import {firstConjugationTemplate} from './conjugations/index.ts'
-
+import {createSecondDeclensionNoun, createDeclensionTemplate} from './declensions/index.ts'
 // Add your grammar-related functions and logic here
 
 function handleVerbs(wordData) {
     const wordInfoEl = document.querySelector('.word-info');
     if (wordData) {
         wordInfoEl.innerHTML = createConjugationTemplate(wordData);
+    }
+}
+
+function handleNouns(wordData) {
+    const wordInfoEl = document.querySelector('.word-info');
+    if (wordData) {
+        console.log("handleNouns", wordData)
+        const nounData = createSecondDeclensionNoun(wordData);
+        console.log("nounData", nounData)
+        wordInfoEl.innerHTML = createDeclensionTemplate(nounData);
     }
 }
 
@@ -29,4 +39,6 @@ function createConjugationTemplate(wordData) {
     `;
 }
 
-export { handleVerbs }
+
+
+export { handleVerbs, handleNouns }

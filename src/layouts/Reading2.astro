@@ -244,7 +244,7 @@ const words = text.split(' ').map((word, index) => `<span class="word" data-word
 </style>
 
 <script>
-    import { handleVerbs } from '../scripts/grammar/index.js';
+    import { handleVerbs, handleNouns } from '../scripts/grammar/index.js';
     const textEl = document.querySelector('[data-text-main]')
     const mainText = textEl?.getAttribute('data-text-main')
     const synth = window.speechSynthesis
@@ -276,7 +276,7 @@ const words = text.split(' ').map((word, index) => `<span class="word" data-word
                 // Populate sliding pane based on the type of word using switch
                 switch (wordData.type) {
                     case 'noun':
-                        wordInfoEl.innerHTML = `<h3>${wordData.root} (Noun)</h3><p>Definition: ${wordData.definition}</p><p>Gender: ${wordData.gender}</p>`;
+                        handleNouns(wordData);
                         break;
                     case 'verb':
                         handleVerbs(wordData);
